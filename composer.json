@@ -1,0 +1,29 @@
+{
+    "name": "talesoft/tale-http-runtime",
+    "type": "library",
+    "keywords": ["http", "runtime", "psr-7"],
+    "description": "A basic, PSR-7 compatible HTTP runtime based on middlewares",
+    "license": "MIT",
+    "homepage": "http://docs.talesoft.io/tale-framework/tale/http/runtime",
+    "authors": [
+        {
+            "name": "Talesoft",
+            "homepage": "http://talesoft.io",
+            "email": "info@talesoft.io"
+        },
+        {
+            "name": "Torben Koehn",
+            "email": "tk@talesoft.io"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.5.0",
+        "talesoft/tale-http": "~0.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tale\\": ""
+        }
+    }
+}
