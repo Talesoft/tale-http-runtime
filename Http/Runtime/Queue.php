@@ -28,6 +28,24 @@ class Queue extends SplQueue implements MiddlewareInterface
         parent::push($value);
     }
 
+    public function unshift($value)
+    {
+        Runtime::validateMiddleware($value);
+        parent::unshift($value);
+    }
+
+    public function append($value)
+    {
+
+        return $this->push($value);
+    }
+
+    public function prepend($value)
+    {
+
+        return $this->unshift($value);
+    }
+
     /**
      * @param ServerRequestInterface $request
      * @param ResponseInterface      $response

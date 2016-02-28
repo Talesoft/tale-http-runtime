@@ -67,4 +67,47 @@ class RuntimeTest extends \PHPUnit_Framework_TestCase
             (string)Runtime::dispatch($queue)->getBody()
         );
     }
+
+    public function testPrepending()
+    {
+
+        $queue = new Queue();
+        $queue->enqueue(function($req, $res, $next) use ($queue) {
+
+            $queue->prepend(function($req, $res, $next) {
+
+                $res->getBody()->write('Second!');
+                return $next($req, $res);
+            });
+
+            $res->getBody()->write('First!');
+            return $next($req, $res);
+        });
+        $queue->enqueue(function($req, $res, $next) use ($queue) {
+
+            $queue->append(function($req, $res, $next) {
+
+                $res->getBody()->write('Sixth!');
+                return $next($req, $res);
+            });
+
+            $res->getBody()->write('Third!');
+            return $next($req, $res);
+        });
+        $queue->enqueue(function($req, $res, $next) use ($queue) {
+
+            $queue->prepend(function($req, $res, $next) {
+
+                $res->getBody()->write('Fifth!');
+                return $next($req, $res);
+            });
+
+            $res->getBody()->write('Fourth!');
+            return $next($req, $res);
+        });
+
+        $this->assertEquals('First!Second!Third!Fourth!Fifth!Sixth!',
+            (string)Runtime::dispatch($queue)->getBody()
+        );
+    }
 }
