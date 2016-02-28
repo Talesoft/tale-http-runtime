@@ -63,17 +63,17 @@ class RuntimeTest extends \PHPUnit_Framework_TestCase
         $queue->append(new FuckingMiddleware());
 
         $this->assertEquals('Hello fucking World!',
-            (string)Runtime::dispatch($queue)->getBody(),
+            (string)Runtime::run($queue)->getBody(),
             'first time'
         );
 
         $this->assertEquals('Hello fucking World!',
-            (string)Runtime::dispatch($queue)->getBody(),
+            (string)Runtime::run($queue)->getBody(),
             'second time'
         );
 
         $this->assertEquals('Hello fucking World!',
-            (string)Runtime::dispatch($queue)->getBody(),
+            (string)Runtime::run($queue)->getBody(),
             'third time'
         );
     }
@@ -117,17 +117,17 @@ class RuntimeTest extends \PHPUnit_Framework_TestCase
         });
 
         $this->assertEquals('First!Second!Third!Fourth!Fifth!Sixth!',
-            (string)Runtime::dispatch($queue)->getBody(),
+            (string)Runtime::run($queue)->getBody(),
             'first time'
         );
 
         $this->assertEquals('First!Second!Third!Fourth!Fifth!Sixth!',
-            (string)Runtime::dispatch($queue)->getBody(),
+            (string)Runtime::run($queue)->getBody(),
             'second time'
         );
 
         $this->assertEquals('First!Second!Third!Fourth!Fifth!Sixth!',
-            (string)Runtime::dispatch($queue)->getBody(),
+            (string)Runtime::run($queue)->getBody(),
             'third time'
         );
     }

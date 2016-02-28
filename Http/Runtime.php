@@ -27,7 +27,7 @@ class Runtime
             );
     }
 
-    public static function dispatch(
+    public static function run(
         Queue $queue,
         ServerRequestInterface $request = null,
         ResponseInterface $response = null
@@ -47,6 +47,6 @@ class Runtime
     )
     {
 
-        Http::emit(self::dispatch($queue, $request, $response));
+        Http::emit(self::run($queue, $request, $response));
     }
 }
