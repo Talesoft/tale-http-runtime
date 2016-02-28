@@ -25,7 +25,7 @@ class Queue extends SplQueue implements MiddlewareInterface
     {
 
         Runtime::validateMiddleware($value);
-        parent::push($value); //
+        parent::push($value);
     }
 
     /**
@@ -40,17 +40,15 @@ class Queue extends SplQueue implements MiddlewareInterface
     )
     {
 
-        $queue = clone $this;
-
         $next = function (
             ServerRequestInterface $request,
             ResponseInterface $response
-        ) use (&$next, $queue) {
+        ) use (&$next) {
 
-            if (count($queue) < 1)
+            if (count($this) < 1)
                 return $response;
 
-            $middleware = $queue->dequeue();
+            $middleware = $this->dequeue();
             $response = call_user_func($middleware, $request, $response, $next);
 
             if (!($response instanceof ResponseInterface))
