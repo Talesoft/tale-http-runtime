@@ -6,7 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Tale\Http\Runtime;
 use Tale\Http\Runtime\MiddlewareInterface;
-use Tale\Http\Runtime\Queue;
+use Tale\Http\Runtime\Middleware\Queue;
 
 class HelloMiddleware implements MiddlewareInterface
 {
@@ -40,15 +40,14 @@ class WorldMiddleware implements MiddlewareInterface
 
 class FuckingMiddleware implements MiddlewareInterface
 {
+    use Runtime\MiddlewareTrait;
 
-    public function __invoke(
-        ServerRequestInterface $request,
-        ResponseInterface $response,
-        callable $next
-    )
+    protected function handleRequest()
     {
-        $response->getBody()->write('fucking ');
-        return $next($request, $response);
+
+        $this->getResponse()->getBody()->write('fucking ');
+
+        return $this->handleNext();
     }
 }
 
@@ -59,12 +58,23 @@ class RuntimeTest extends \PHPUnit_Framework_TestCase
     {
 
         $queue = new Queue();
-        $queue->enqueue(new HelloMiddleware());
-        $queue->enqueue(new WorldMiddleware());
-        $queue->enqueue(new FuckingMiddleware());
+        $queue->append(new HelloMiddleware());
+        $queue->append(new WorldMiddleware());
+        $queue->append(new FuckingMiddleware());
 
         $this->assertEquals('Hello fucking World!',
-            (string)Runtime::dispatch($queue)->getBody()
+            (string)Runtime::dispatch($queue)->getBody(),
+            'first time'
+        );
+
+        $this->assertEquals('Hello fucking World!',
+            (string)Runtime::dispatch($queue)->getBody(),
+            'second time'
+        );
+
+        $this->assertEquals('Hello fucking World!',
+            (string)Runtime::dispatch($queue)->getBody(),
+            'third time'
         );
     }
 
@@ -72,7 +82,7 @@ class RuntimeTest extends \PHPUnit_Framework_TestCase
     {
 
         $queue = new Queue();
-        $queue->enqueue(function($req, $res, $next) use ($queue) {
+        $queue->append(function($req, $res, $next) use ($queue) {
 
             $queue->prepend(function($req, $res, $next) {
 
@@ -83,7 +93,7 @@ class RuntimeTest extends \PHPUnit_Framework_TestCase
             $res->getBody()->write('First!');
             return $next($req, $res);
         });
-        $queue->enqueue(function($req, $res, $next) use ($queue) {
+        $queue->append(function($req, $res, $next) use ($queue) {
 
             $queue->append(function($req, $res, $next) {
 
@@ -94,7 +104,7 @@ class RuntimeTest extends \PHPUnit_Framework_TestCase
             $res->getBody()->write('Third!');
             return $next($req, $res);
         });
-        $queue->enqueue(function($req, $res, $next) use ($queue) {
+        $queue->append(function($req, $res, $next) use ($queue) {
 
             $queue->prepend(function($req, $res, $next) {
 
@@ -107,7 +117,18 @@ class RuntimeTest extends \PHPUnit_Framework_TestCase
         });
 
         $this->assertEquals('First!Second!Third!Fourth!Fifth!Sixth!',
-            (string)Runtime::dispatch($queue)->getBody()
+            (string)Runtime::dispatch($queue)->getBody(),
+            'first time'
+        );
+
+        $this->assertEquals('First!Second!Third!Fourth!Fifth!Sixth!',
+            (string)Runtime::dispatch($queue)->getBody(),
+            'second time'
+        );
+
+        $this->assertEquals('First!Second!Third!Fourth!Fifth!Sixth!',
+            (string)Runtime::dispatch($queue)->getBody(),
+            'third time'
         );
     }
 }

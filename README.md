@@ -66,9 +66,9 @@ class FuckingMiddleware implements MiddlewareInterface
 
 
 $queue = new Queue();
-$queue->enqueue(new HelloMiddleware());
-$queue->enqueue(new WorldMiddleware());
-$queue->enqueue(new FuckingMiddleware());
+$queue->append(new HelloMiddleware())
+      ->append(new WorldMiddleware())
+      ->append(new FuckingMiddleware());
 
 Runtime::emit($queue); //(Output) "Hello fucking World!"
     

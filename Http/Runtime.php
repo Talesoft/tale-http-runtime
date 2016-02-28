@@ -5,7 +5,7 @@ namespace Tale\Http;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Tale\Http;
-use Tale\Http\Runtime\Queue;
+use Tale\Http\Runtime\Middleware\Queue;
 
 class Runtime
 {
@@ -34,7 +34,7 @@ class Runtime
     )
     {
 
-        return $queue->dispatch(
+        return $queue->run(
             $request ?: Http::getServerRequest(),
             $response ?: new Response()
         );
