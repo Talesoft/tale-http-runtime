@@ -42,12 +42,11 @@ class FuckingMiddleware implements MiddlewareInterface
 {
     use Runtime\MiddlewareTrait;
 
-    protected function handleRequest()
+    protected function handleRequest(callable $next)
     {
 
-        $this->getResponse()->getBody()->write('fucking ');
-
-        return $this->handleNext();
+        $this->response->getBody()->write('fucking ');
+        return $next($this->request, $this->response);
     }
 }
 

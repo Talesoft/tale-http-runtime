@@ -17,22 +17,22 @@ class Queue implements MiddlewareInterface, \Countable
 {
     use MiddlewareTrait;
 
-    private $_middlewares;
-    private $_savedState;
-    private $_running;
+    private $middleware;
+    private $savedState;
+    private $running;
 
-    public function __construct(array $middlewares = null)
+    public function __construct(array $middleware = null)
     {
 
-        $this->_running = false;
-        $this->_savedState = [];
-        $this->_middlewares = $middlewares ?: [];
+        $this->running = false;
+        $this->savedState = [];
+        $this->middleware = $middleware ?: [];
     }
 
     public function isRunning()
     {
 
-        return $this->_running;
+        return $this->running;
     }
 
     public function append($value)
@@ -46,7 +46,7 @@ class Queue implements MiddlewareInterface, \Countable
             return $this;
         }
 
-        $this->_middlewares[] = $value;
+        $this->middleware[] = $value;
 
         return $this;
     }
@@ -63,7 +63,7 @@ class Queue implements MiddlewareInterface, \Countable
             return $this;
         }
 
-        array_unshift($this->_middlewares, $value);
+        array_unshift($this->middleware, $value);
 
         return $this;
     }
@@ -71,21 +71,21 @@ class Queue implements MiddlewareInterface, \Countable
     public function count()
     {
 
-        return count($this->_middlewares);
+        return count($this->middleware);
     }
 
-    private function _save()
+    private function save()
     {
 
-        $this->_savedState = $this->_middlewares;
+        $this->savedState = $this->middleware;
 
         return $this;
     }
 
-    private function _restore()
+    private function restore()
     {
 
-        $this->_middlewares = $this->_savedState;
+        $this->middleware = $this->savedState;
 
         return $this;
     }
@@ -102,22 +102,22 @@ class Queue implements MiddlewareInterface, \Countable
     )
     {
 
-        if ($this->_running)
+        if ($this->running)
             throw new \RuntimeException(
                 "Failed to run middleware queue: Queue is already running"
             );
 
-        $this->_running = true;
-        $this->_save();
+        $this->running = true;
+        $this->save();
 
         $next = function (
             ServerRequestInterface $request,
             ResponseInterface $response
         ) use (&$next) {
 
-            if (count($this->_middlewares) > 0) {
+            if (count($this->middleware) > 0) {
 
-                $middleware = array_shift($this->_middlewares);
+                $middleware = array_shift($this->middleware);
                 $response = call_user_func($middleware, $request, $response, $next);
 
                 if (!($response instanceof ResponseInterface))
@@ -127,20 +127,20 @@ class Queue implements MiddlewareInterface, \Countable
                     );
             }
 
-            $this->_running = false;
-            $this->_restore();
+            $this->running = false;
+            $this->restore();
             return $response;
         };
 
         return $next($request, $response);
     }
 
-    protected function handleRequest()
+    protected function handleRequest(callable $next)
     {
 
-        return $this->handleNext(
-            null,
-            $this->run($this->getRequest(), $this->getResponse())
+        return $next(
+            $this->request,
+            $this->run($this->request, $this->response)
         );
     }
 }
